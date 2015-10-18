@@ -1809,29 +1809,33 @@ L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
 		return areaStr;
 	},
 
-	readableDistance: function (distance, isMetric) {
+	readableDistance: function (meters, isMetric) {
 		var distanceStr;
 
 		if (isMetric) {
-			// show metres when distance is < 1km, then show km
-			if (distance > 1000) {
-				distanceStr = (distance  / 1000).toFixed(2) + ' km';
+			// show centimeters when distance < 1m; show metres when distance < 1km, then show kilometers
+			if (meters > 100000) {
+				distanceStr = (meters  / 1000).toFixed(2) + ' km';
+			} else if (meters > 1) {
+				distanceStr = meters.toFixed(2) + ' m';
 			} else {
-				distanceStr = Math.ceil(distance) + ' m';
+				distanceStr = Math.round(meters*100) + ' cm'
 			}
-		} else {
-			distance *= 1.09361;
 
-			if (distance > 1760) {
-				distanceStr = (distance / 1760).toFixed(2) + ' miles';
+		} else {
+			meters *= 1.09361;
+
+			if (meters > 1760) {
+				distanceStr = (meters / 1760).toFixed(2) + ' miles';
 			} else {
-				distanceStr = Math.ceil(distance) + ' yd';
+				distanceStr = Math.ceil(meters) + ' yd';
 			}
 		}
 
 		return distanceStr;
 	}
 });
+
 
 L.Util.extend(L.LineUtil, {
 	// Checks to see if two line segments intersect. Does not handle degenerate cases.

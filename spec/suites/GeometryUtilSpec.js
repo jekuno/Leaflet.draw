@@ -13,8 +13,11 @@ describe("L.GeometryUtil", function () {
 
 	describe("readableDistance", function () {
 		it("metric", function () {
-			expect(L.GeometryUtil.readableDistance(1000, true)).to.eql('1000 m');
-			expect(L.GeometryUtil.readableDistance(1500, true)).to.eql('1.50 km');
+			expect(L.GeometryUtil.readableDistance(0.187, true)).to.eql('19 cm');
+			expect(L.GeometryUtil.readableDistance(0.25,  true)).to.eql('25 cm');
+			expect(L.GeometryUtil.readableDistance(1,     true)).to.eql('1 m');
+			expect(L.GeometryUtil.readableDistance(1000,  true)).to.eql('1000 m');
+			expect(L.GeometryUtil.readableDistance(1500,  true)).to.eql('1.50 km');
 		});
 
 		it("imperial", function () {
