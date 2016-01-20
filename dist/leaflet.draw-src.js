@@ -1846,12 +1846,12 @@ L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
 
 		if (isMetric) {
 			// show centimeters when distance < 1m; show metres when distance < 1km, then show kilometers
-			if (meters > 100000) {
+			if (meters >= 1000) {
 				distanceStr = (meters  / 1000).toFixed(2) + ' km';
-			} else if (meters > 1) {
+			} else if (meters >= 1) {
 				distanceStr = meters.toFixed(2) + ' m';
 			} else {
-				distanceStr = Math.round(meters*100) + ' cm'
+				distanceStr = Math.round(meters * 100) + ' cm';
 			}
 
 		} else {
