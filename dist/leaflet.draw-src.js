@@ -193,6 +193,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 	Poly: L.Polyline,
 
 	options: {
+		autoPanAtBorders: 70,
 		allowIntersection: true,
 		repeatMode: false,
 		drawError: {
@@ -339,7 +340,38 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			this._map.addLayer(this._poly);
 		}
 
+		if (this.options.autoPanAtBorders > 0) {
+			this._autoPanAtBorders(latlng);
+		}
+
 		this._vertexChanged(latlng, true);
+	},
+
+	// Pans map when latlng is close to the border of the map
+	_autoPanAtBorders: function (latlng) {
+		var containerPoint    = this._map.latLngToContainerPoint(latlng),
+			mapSize           = this._map.getSize(),
+			distanceThreshold = this.options.autoPanAtBorders,
+			hitsLeftBorder    = (containerPoint.x < distanceThreshold),
+			hitsTopBorder     = (containerPoint.y < distanceThreshold),
+			hitsRightBorder   = (containerPoint.x > (mapSize.x - distanceThreshold)),
+			hitsBottomBorder  = (containerPoint.y > (mapSize.y - distanceThreshold)),
+			mapSize           = this._map.getSize(),
+			offsetX           = mapSize.x / 3.5,
+			offsetY           = mapSize.y / 3.5;
+
+		if (hitsLeftBorder) {
+			this._map.panBy(new L.Point(-1*offsetX, 0))
+		}
+		if (hitsRightBorder) {
+			this._map.panBy(new L.Point(offsetX, 0))
+		}
+		if (hitsTopBorder) {
+			this._map.panBy(new L.Point(0, -1*offsetY))
+		}
+		if (hitsBottomBorder) {
+			this._map.panBy(new L.Point(0, offsetY))
+		}
 	},
 
 	_finishShape: function () {
@@ -1087,7 +1119,7 @@ L.Edit.Marker = L.Handler.extend({
 		if (!this._icon) {
 			return;
 		}
-		
+
 		// This is quite naughty, but I don't see another way of doing it. (short of setting a new icon)
 		var icon = this._icon;
 
@@ -1809,29 +1841,33 @@ L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
 		return areaStr;
 	},
 
-	readableDistance: function (distance, isMetric) {
+	readableDistance: function (meters, isMetric) {
 		var distanceStr;
 
 		if (isMetric) {
-			// show metres when distance is < 1km, then show km
-			if (distance > 1000) {
-				distanceStr = (distance  / 1000).toFixed(2) + ' km';
+			// show centimeters when distance < 1m; show metres when distance < 1km, then show kilometers
+			if (meters > 100000) {
+				distanceStr = (meters  / 1000).toFixed(2) + ' km';
+			} else if (meters > 1) {
+				distanceStr = meters.toFixed(2) + ' m';
 			} else {
-				distanceStr = Math.ceil(distance) + ' m';
+				distanceStr = Math.round(meters*100) + ' cm'
 			}
-		} else {
-			distance *= 1.09361;
 
-			if (distance > 1760) {
-				distanceStr = (distance / 1760).toFixed(2) + ' miles';
+		} else {
+			meters *= 1.09361;
+
+			if (meters > 1760) {
+				distanceStr = (meters / 1760).toFixed(2) + ' miles';
 			} else {
-				distanceStr = Math.ceil(distance) + ' yd';
+				distanceStr = Math.ceil(meters) + ' yd';
 			}
 		}
 
 		return distanceStr;
 	}
 });
+
 
 L.Util.extend(L.LineUtil, {
 	// Checks to see if two line segments intersect. Does not handle degenerate cases.
