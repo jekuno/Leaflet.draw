@@ -13,10 +13,13 @@ describe("L.GeometryUtil", function () {
 
 	describe("readableDistance", function () {
 		it("metric", function () {
+			expect(L.GeometryUtil.readableDistance(0,     true)).to.eql('0 cm');
 			expect(L.GeometryUtil.readableDistance(0.187, true)).to.eql('19 cm');
 			expect(L.GeometryUtil.readableDistance(0.25,  true)).to.eql('25 cm');
-			expect(L.GeometryUtil.readableDistance(1,     true)).to.eql('1 m');
-			expect(L.GeometryUtil.readableDistance(1000,  true)).to.eql('1000 m');
+			expect(L.GeometryUtil.readableDistance(1,     true)).to.eql('1.00 m');
+			expect(L.GeometryUtil.readableDistance(1.234, true)).to.eql('1.23 m');
+			expect(L.GeometryUtil.readableDistance(1000,  true)).to.eql('1.00 km');
+			expect(L.GeometryUtil.readableDistance(1235,  true)).to.eql('1.24 km');
 			expect(L.GeometryUtil.readableDistance(1500,  true)).to.eql('1.50 km');
 		});
 
