@@ -6,6 +6,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 	Poly: L.Polyline,
 
 	options: {
+		autoPanAtBorders: 70,
 		allowIntersection: true,
 		repeatMode: false,
 		drawError: {
@@ -172,7 +173,39 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			this._map.addLayer(this._poly);
 		}
 
+		if (this.options.autoPanAtBorders > 0) {
+			this._autoPanAtBorders(latlng);
+		}
+
 		this._vertexChanged(latlng, true);
+	},
+
+
+	// Pans map when latlng is close to the border of the map
+	_autoPanAtBorders: function (latlng) {
+		var containerPoint    = this._map.latLngToContainerPoint(latlng),
+			mapSize           = this._map.getSize(),
+			distanceThreshold = this.options.autoPanAtBorders,
+			hitsLeftBorder    = (containerPoint.x < distanceThreshold),
+			hitsTopBorder     = (containerPoint.y < distanceThreshold),
+			hitsRightBorder   = (containerPoint.x > (mapSize.x - distanceThreshold)),
+			hitsBottomBorder  = (containerPoint.y > (mapSize.y - distanceThreshold)),
+			mapSize           = this._map.getSize(),
+			offsetX           = mapSize.x / 3.5,
+			offsetY           = mapSize.y / 3.5;
+
+		if (hitsLeftBorder) {
+			this._map.panBy(new L.Point(-1*offsetX, 0))
+		}
+		if (hitsRightBorder) {
+			this._map.panBy(new L.Point(offsetX, 0))
+		}
+		if (hitsTopBorder) {
+			this._map.panBy(new L.Point(0, -1*offsetY))
+		}
+		if (hitsBottomBorder) {
+			this._map.panBy(new L.Point(0, offsetY))
+		}
 	},
 
 	completeShape: function () {
